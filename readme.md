@@ -22,3 +22,8 @@ if you want to clone then do this
 git clone https://github.com/your-user/car-market-place.git
 cd car-market-place
 docker compose up -d --build
+
+
+
+days wise progress
+4th day - after setting the docker today i set up prettier 
