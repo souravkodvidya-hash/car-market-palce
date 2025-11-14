@@ -62,40 +62,8 @@ export const registerUser = asyncHandler(async (req: Request, res: Response) => 
 });
 
 
-// export const registerUser = asyncHandler(async (req: Request, res: Response) => {
-//   const { fullName, email, password, phoneNumber } = req.body;
 
-//   if (!fullName || !email || !password || !phoneNumber) {
-//     throw new ApiError(400, "All fields are required");
-//   }
 
-//   const existingUser = await User.findOne({ email });
-//   if (existingUser) {
-//     throw new ApiError(400, "Email already exists");
-//   }
- 
-//   const user = await User.create({ fullName, email, password, phoneNumber });
-
-//   const accessToken = user.generateAccessToken();
-//   const refreshToken = user.generateRefreshToken();
-// user.refreshToken = refreshToken
-// user.save({validateBeforeSave:false})
-
-//   return
-//    res
-//     .cookie("accessToken", accessToken, {
-//       httpOnly: true,
-//       secure: process.env.NODE_ENV === "production",
-//       maxAge: 15 * 60 * 1000, // 15 min
-//     })
-//     .cookie("refreshToken", refreshToken, {
-//       httpOnly: true,
-//       secure: process.env.NODE_ENV === "production",
-//       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-//     })
-//     .status(201)
-//     .json(new ApiResponse(201, { user }, "User registered successfully"));
-// });
 
 export const loginUser = asyncHandler(async (req: Request, res: Response) => {
   const { email, password } = req.body;
