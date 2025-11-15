@@ -8,6 +8,7 @@ export interface IUser extends Document {
   password: string;
   phoneNumber: string;
   refreshToken?: string;
+  role : string;
 
   comparePassword(password: string): Promise<boolean>;
   generateAccessToken(): string;
@@ -21,6 +22,11 @@ const userSchema = new Schema<IUser>(
     password: { type: String, required: true },
     phoneNumber: { type: String, required: true },
     refreshToken: { type: String },
+    role: {
+      type: String,
+      enum: ["user", "vendor", "admin"],
+      default: "user"
+    }
   },
   { timestamps: true }
 );
