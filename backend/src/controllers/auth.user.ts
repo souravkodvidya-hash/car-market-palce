@@ -4,43 +4,32 @@ import { ApiResponse } from "../utils/ApiResonse";
 import { ApiError } from "../utils/ApiError";
 import { asyncHandler } from "../utils/asyncHandler";
 import jwt from "jsonwebtoken";
+import {loginUserService, registerUserService} from "../services/auth.service"
 
 export const registerUser = asyncHandler(async (req: Request, res: Response) => {
   const { fullName, email, password, phoneNumber } = req.body;
 
-  // 1️⃣ Validate input
   if (!fullName || !email || !password || !phoneNumber) {
     throw new ApiError(400, "All fields are required");
   }
 
-  // 2️⃣ Check if email already exists
-  const existingUser = await User.findOne({ email });
-  if (existingUser) {
-    throw new ApiError(400, "Email already exists");
-  }
+  const { user, accessToken, refreshToken } = await registerUserService(
+    fullName,
+    email,
+    password,
+    phoneNumber
+  );
 
-  // 3️⃣ Create new user
-  const user = await User.create({ fullName, email, password, phoneNumber });
-
-  // 4️⃣ Generate tokens
-  const accessToken = user.generateAccessToken();
-  const refreshToken = user.generateRefreshToken();
-
-  // 5️⃣ Save refresh token in DB
-  user.refreshToken = refreshToken;
-  await user.save({ validateBeforeSave: false }); // <-- ✅ await added!
-
-  // 6️⃣ Send cookies + response
   res
     .cookie("accessToken", accessToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      maxAge: 15 * 60 * 1000, // 15 min
+      maxAge: 15 * 60 * 1000,
     })
     .cookie("refreshToken", refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      maxAge: 7 * 24 * 60 * 60 * 1000,
     })
     .status(201)
     .json(
@@ -52,6 +41,7 @@ export const registerUser = asyncHandler(async (req: Request, res: Response) => 
             fullName: user.fullName,
             email: user.email,
             phoneNumber: user.phoneNumber,
+            role: user.role,
           },
           accessToken,
           refreshToken,
@@ -63,22 +53,10 @@ export const registerUser = asyncHandler(async (req: Request, res: Response) => 
 
 
 
-
-
 export const loginUser = asyncHandler(async (req: Request, res: Response) => {
   const { email, password } = req.body;
 
-  const user = await User.findOne({ email });
-  if (!user) throw new ApiError(404, "User not found");
-
-  const isPasswordCorrect = await user.comparePassword(password);
-  if (!isPasswordCorrect) throw new ApiError(401, "Invalid credentials");
-
-  const accessToken = user.generateAccessToken();
-  const refreshToken = user.generateRefreshToken();
-
-  user.refreshToken = refreshToken;
-  await user.save();
+ const {user,accessToken,refreshToken} = await loginUserService(email,password)
 
   // Send tokens as HttpOnly cookies
   res
@@ -96,6 +74,7 @@ export const loginUser = asyncHandler(async (req: Request, res: Response) => {
 });
 
 export const logoutUser = asyncHandler(async (req: Request, res: Response) => {
+  console.log("heloooooooooooooooo",req.cookies)
   const { refreshToken } = req.cookies;
 
   if (refreshToken) {
