@@ -5,6 +5,7 @@ import cors from 'cors'
 import dotenv from "dotenv";
 
 import authRoutes from "./src/routes/user.routes";
+import vendorRoutes from "./src/routes/vendor.routes"
 import { ApiError } from "./src/utils/ApiError";
 
 
@@ -25,7 +26,8 @@ app.use(cookieParser())
 // //routes declaration 
 
 // app.use("/api/v1/users",userRouter)
-app.use("/api/auth", authRoutes);
+app.use("/api/auth/user", authRoutes);
+app.use("/api/auth/vendor",vendorRoutes)
 
 // Global error handler
 app.use((err: ApiError, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
